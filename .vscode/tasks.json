@@ -1,0 +1,52 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Menit.com audit tahap 1-4",
+			"type": "shell",
+			"command": "Get-ChildItem -Force | Select-Object Mode,Length,LastWriteTime,Name; Write-Output '--- package files ---'; rg --files -g 'package.json' -g 'pnpm-lock.yaml' -g 'yarn.lock' -g 'package-lock.json' -g 'bun.lockb' -g '.env*' -g 'next.config.*' -g 'tsconfig.json' -g 'src/**' -g 'app/**' -g 'pages/**' | Select-Object -First 200"
+		},
+		{
+			"label": "Menit.com audit detail",
+			"type": "shell",
+			"command": "Write-Output '--- runtimes ---'; node --version; npm --version; Write-Output '--- project files ---'; Get-ChildItem -Recurse -Force -File | Where-Object { $_.FullName -notmatch '\\\\.git\\\\|\\\\node_modules\\\\' } | ForEach-Object { $_.FullName.Substring((Get-Location).Path.Length + 1) }; Write-Output '--- planning docs ---'; Get-ChildItem -File -Filter '*.md' | Sort-Object Name | ForEach-Object { Write-Output ('### ' + $_.Name); Get-Content -LiteralPath $_.FullName -Raw }"
+		},
+		{
+			"label": "Cek versi package Menit.com",
+			"type": "shell",
+			"command": "npm.cmd view next version; npm.cmd view react version; npm.cmd view @supabase/supabase-js version; npm.cmd view @supabase/ssr version"
+		},
+		{
+			"label": "Install dependency Menit.com",
+			"type": "shell",
+			"command": "npm.cmd install"
+		},
+		{
+			"label": "Validasi build Menit.com",
+			"type": "shell",
+			"command": "npm.cmd run build; Write-Output ('--- env files ---'); Get-ChildItem -Force -File -Filter '.env*' | Select-Object Name,Length; Write-Output ('--- source files ---'); Get-ChildItem -Recurse -File app,lib | ForEach-Object { $_.FullName.Substring((Get-Location).Path.Length + 1) }"
+		},
+		{
+			"label": "Final check Menit.com tahap 1-4",
+			"type": "shell",
+			"command": "npm.cmd run typecheck; Write-Output '--- files ---'; Get-ChildItem -Recurse -File | Where-Object { $_.FullName -notmatch '\\\\node_modules\\\\|\\\\.next\\\\' } | ForEach-Object { $_.FullName.Substring((Get-Location).Path.Length + 1) } | Sort-Object"
+		},
+		{
+			"label": "Menit.com dev server",
+			"type": "shell",
+			"command": "npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read current homepage files",
+			"type": "shell",
+			"command": "Get-Content -LiteralPath 'app\\page.tsx' -Raw; Write-Output '---CSS---'; Get-Content -LiteralPath 'app\\globals.css' -Raw"
+		},
+		{
+			"label": "Validasi UI Menit.com",
+			"type": "shell",
+			"command": "npm.cmd run typecheck; npm.cmd run build"
+		}
+	]
+}
